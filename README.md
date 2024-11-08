@@ -1,6 +1,4 @@
 # 254-Project-Software
 
 Group Members:
-Rene Acosta
-Brett Chiu
-Cristian Victorio
+Rene Acosta, Brett Chiu, Cristian Victorio
