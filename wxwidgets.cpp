@@ -14,4 +14,7 @@ private:
 
 }
 
-MyFrame::MyFrame() : wxFrame(nullptr
+bool MyApp::OnInit()
+{
+  return true;
+}
