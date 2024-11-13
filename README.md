@@ -1,6 +1,10 @@
 # 254-Project-Software
-
+ Simple password strength tester curated for Linux environments.
+ 
+##
 Group Members:
 Rene Acosta, Brett Chiu, Cristian Victorio
 
-Components Used: WxWidgets
+Components, Languages, Tools Used:
+- WXWidgets
+- C++
