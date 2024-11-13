@@ -18,3 +18,8 @@ bool MyApp::OnInit()
 {
   return true;
 }
+
+// HELP MENU
+// wxMenu *helpMenu = new wxMenu;
+
+// 
