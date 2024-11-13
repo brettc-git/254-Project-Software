@@ -11,8 +11,8 @@ class MyFrame : public appFrame {
 public:
   MyFrame();
 private:
-
-}
+  void OnExit(wxCommandEvent& event);
+};
 
 bool MyApp::OnInit()
 {
