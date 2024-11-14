@@ -40,7 +40,7 @@ Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 }
 
 void Frame::OnAbout(wxCommandEvent& event) {
-	wxMessageBox("Team Members: Brett Chiu, Rene Acosta, ")
+	wxMessageBox("Team Members: Brett Chiu, Rene Acosta, Cristian Victorio")
 }
 // Exit function 
 void Frame::OnExit(wxCommandEvent& event) {
