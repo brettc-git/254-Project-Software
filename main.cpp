@@ -39,13 +39,16 @@ Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 
 }
 
+// Activates message box when pressing about button
+
 void Frame::OnAbout(wxCommandEvent& event) {
-	wxMessageBox("Team Members: Brett Chiu, Rene Acosta, Cristian Victorio")
+	wxMessageBox("Team Members: Brett Chiu, Rene Acosta, Cristian Victorio, for course CPSC 254")
 }
 // Exit function 
 void Frame::OnExit(wxCommandEvent& event) {
 	Close(true);
 }
+
 wxIMPLEMENT_APP(App);
 
 
