@@ -15,7 +15,7 @@ private:
 
 bool App::OnInit()
 {
-	wxFrame* window = new wxFrame(NULL, wxID_ANY, "Password Strength Checker", wxDefaultPosition, wxDefaultSize);
+	wxFrame* window = new wxFrame(NULL, wxID_ANY, "Password Strength Checker", wxDefaultPosition, wxDefaultSize); // Consider also adding a password generator
 	window->Show();
 	return true;
 }
