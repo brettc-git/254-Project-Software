@@ -5,6 +5,7 @@
 #include <ctime>
 #include <random>
 #include <string>
+#include <fstream>
 
 // Checks if our password has a special character, returns true if a single one is found, false if there are none 
 bool containsSpecial(const std::string our_string) {
@@ -32,6 +33,13 @@ bool containsNumber(const std::string our_string) {
 	return false;
 }
 
+bool containsLower(const std::string our_string) {
+	for (char c : our_string) {
+		if (!std::islower(c))
+			return true;
+	}
+	return false;
+}
 std::string passwordGenerator(int length) {
 
 	if (length < 8) {
@@ -60,7 +68,7 @@ std::string passwordGenerator(int length) {
 
 		// Our password in this generator should contain at least one special character
 		/*if containsSpecial(pass) == false*/
-	} while (containsSpecial(pass) == false || containsUpper(pass) == false || containsNumber(pass) == false);
+	} while (containsSpecial(pass) == false || containsUpper(pass) == false || containsNumber(pass) == false || containsLower(pass) == false);
 
 	// Return when at least once special character is found in password
 	return pass;
@@ -71,7 +79,7 @@ std::string passwordGenerator(int length) {
 int main() {
 	srand(time(0));
 	std::cout << "Entering a length for password: " << std::endl;
-	std::string first_p = passwordGenerator(22);
+	std::string first_p = passwordGenerator(23);
 	if (first_p != "ERROR")
 		std::cout << first_p;
 	else
