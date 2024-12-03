@@ -4,6 +4,7 @@
 #include <random>
 #include <string>
 #include <fstream>
+#include "password.h"
 
 // Checks if our password has a special character, returns true if a single one is found, false if there are none 
 bool containsSpecial(const std::string our_string) {
@@ -72,36 +73,3 @@ std::string passwordGenerator(int length) {
 	return pass;
 }
 
-
-
-int main() {
-	srand(time(0));
-
-	std::ofstream Myfile("ourpasswords.txt");
-
-	if (!Myfile.is_open()) {
-		std::cerr << "File not found. Error.";
-		return 1;
-	}
-
-	std::string line; 
-	int num_of_pwds = 14;
-	int batch_length = 20;
-	std::cout << "Specifying how many passwords: " << num_of_pwds << std::endl;
-	std::cout << "of length: " << batch_length << std::endl;
-
-	for (size_t i = 0; i < num_of_pwds; i++) {
-		Myfile << passwordGenerator(batch_length) << std::endl;
-	}
-
-	std::cout << "All " << num_of_pwds << " passwords successfully generated.";
-	Myfile.close();
-
-	/*std::cout << "Entering a length for password: " << std::endl;
-	std::string first_p = passwordGenerator(23);
-	if (first_p != "ERROR")
-		std::cout << first_p;
-	else
-		std::cout << "Password too short!";*/
-	return 0;
-}
