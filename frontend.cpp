@@ -45,17 +45,19 @@ Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 	sizer->Add(textbox, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
 
 	// Checkbox to show password 
-	wxCheckBox* showPasswordCheckbox = new wxCheckBox(panel, wxID_ANY, "Show Password");
-	sizer->Add(showPasswordCheckbox, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
+	wxCheckBox* hidePasswordCheckbox = new wxCheckBox(panel, wxID_ANY, "Show Password");
+	sizer->Add(hidePasswordCheckbox, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
 
 	// Button below to generate a random password on text bar
 	wxButton* GeneratePasswordButton = new wxButton(panel, wxID_ANY, "Generate Random Password");
 	sizer->Add(GeneratePasswordButton, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
+	GeneratePasswordButton->Bind(wxEVT_BUTTON, &Frame::OnGeneratePassword, this);
 
 	// Button below the first that displays a dialog to generate batch of passwords on a txt file.
 
 	wxButton* BatchPasswordButton = new wxButton(panel, wxID_ANY, "Batch Password Generator");
 	sizer->Add(BatchPasswordButton, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
+	BatchPasswordButton->Bind(wxEVT_BUTTON, &Frame::OnBatchPassword, this);
 
 	sizer->AddStretchSpacer(1);
 
@@ -80,8 +82,7 @@ Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 	menuHelp->Append(wxID_ABOUT);
 	Bind(wxEVT_MENU, &Frame::OnAbout, this, wxID_ABOUT);
 	
-	GeneratePasswordButton->Bind(wxEVT_BUTTON, &Frame::OnGeneratePassword, this);
-	BatchPasswordButton->Bind(wxEVT_BUTTON, &Frame::OnBatchPassword, this);
+	
 	 
 	
 	
@@ -125,7 +126,8 @@ void Frame::OnBatchPassword(wxCommandEvent& event) {
 			int passwordCount = dialog2.GetValue();
 			wxString passwords;
 
-			std::ofstream Myfile("generatedpasswords.txt");
+			// Have myfile name be dynamic
+			std::ofstream Myfile("passwords.txt");
 			if (!Myfile.is_open()) {
 				std::cerr << "File not found. Error.";
 			}
