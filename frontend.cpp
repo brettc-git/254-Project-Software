@@ -15,6 +15,8 @@ public:
 private:
 	void OnAbout(wxCommandEvent& event);
 	void OnExit(wxCommandEvent& event);
+	void OnCheckbox(wxCommandEvent& event);
+	void OnGeneratePassword(wxCommandEvent& event);
 	void OnBatchPassword(wxCommandEvent& event);
 };
 
@@ -38,14 +40,23 @@ Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 
 	sizer->AddStretchSpacer(1);
 
-	// Textbox for 
-	wxTextCtrl* textbox = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_CENTRE);
+	// Textbox for password 
+	wxTextCtrl* textbox = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_CENTRE); // Increase size
+	sizer->Add(textbox, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
+
 	// Checkbox to show password 
 	wxCheckBox* showPasswordCheckbox = new wxCheckBox(panel, wxID_ANY, "Show Password");
-
-	sizer->Add(textbox, 0, wxALIGN_CENTER_HORIZONTAL| wxALL, 10);
-
 	sizer->Add(showPasswordCheckbox, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
+
+	// Button below to generate a random password on text bar
+	wxButton* GeneratePasswordButton = new wxButton(panel, wxID_ANY, "Generate Random Password");
+	sizer->Add(GeneratePasswordButton, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
+
+	// Button below the first that displays a dialog to generate batch of passwords on a txt file.
+
+	wxButton* BatchPasswordButton = new wxButton(panel, wxID_ANY, "Batch Password Generator");
+	sizer->Add(BatchPasswordButton, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
+
 	sizer->AddStretchSpacer(1);
 
 	panel->SetSizer(sizer);
@@ -61,26 +72,24 @@ Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 	menuBar->Append(menuFile, "&File");
 	menuBar->Append(menuEdit, "&Edit");
 	menuBar->Append(menuHelp, "&Help");
-	menuFile->Append(wxID_BATCHPASSWORD, "Batch Password Generator");
-	Bind(wxEVT_MENU, &Frame::OnBatchPassword, this, wxID_BATCHPASSWORD);
 	menuFile->AppendSeparator();
 	menuFile->Append(wxID_EXIT);
 	Bind(wxEVT_MENU, &Frame::OnExit, this, wxID_EXIT);
 
 	// Menu bar implementation 
-
-
-	
-	
 	menuHelp->Append(wxID_ABOUT);
 	Bind(wxEVT_MENU, &Frame::OnAbout, this, wxID_ABOUT);
+	
+	GeneratePasswordButton->Bind(wxEVT_BUTTON, &Frame::OnGeneratePassword, this);
+	BatchPasswordButton->Bind(wxEVT_BUTTON, &Frame::OnBatchPassword, this);
+	 
 	
 	
 	SetMenuBar(menuBar);
 
 	
 }
-
+// About/Credits function 
 void Frame::OnAbout(wxCommandEvent& event) {
 	wxMessageBox("Team Members: -------------------------");
 }
@@ -88,6 +97,17 @@ void Frame::OnAbout(wxCommandEvent& event) {
 // Exit function 
 void Frame::OnExit(wxCommandEvent& event) {
 	Close(true);
+}
+
+// On checkbox, hide text on textctrl
+void Frame::OnCheckbox(wxCommandEvent& event)
+{
+
+}
+
+// Press button to generate a random password
+void Frame::OnGeneratePassword(wxCommandEvent& event) {
+	
 }
 
 void Frame::OnBatchPassword(wxCommandEvent& event) {
@@ -121,12 +141,12 @@ void Frame::OnBatchPassword(wxCommandEvent& event) {
 			// Close file
 			Myfile.close();
 
-			wxMessageBox(passwords, "Generated Passwords successfully.", wxOK | wxICON_INFORMATION);
+			wxMessageBox("Passwords will show up on passwords.txt", "Generated Passwords successfully.", wxOK | wxICON_INFORMATION);
 		}
 	}
 	
 	
-}
+ }
 
 
 wxIMPLEMENT_APP(App);
