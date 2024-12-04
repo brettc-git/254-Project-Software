@@ -15,6 +15,7 @@ public:
 private:
 	void OnAbout(wxCommandEvent& event);
 	void OnExit(wxCommandEvent& event);
+	void OnSettings(wxCommandEvent& event);
 	void OnCheckbox(wxCommandEvent& event);
 	void OnGeneratePassword(wxCommandEvent& event);
 	void OnBatchPassword(wxCommandEvent& event);
@@ -30,7 +31,10 @@ bool App::OnInit()
 // Password Generator Length
 // auto dialog = wxNumberEntryDialog {this, "", "Password Length", "Generate Passwords"
 
-enum { wxID_BATCHPASSWORD = wxID_HIGHEST + 1 };
+enum {
+	wxID_BATCHPASSWORD = wxID_HIGHEST + 1,
+	wxID_SETTINGS = wxID_HIGHEST + 2, 
+};
 
 Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 {
@@ -38,10 +42,21 @@ Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 	wxPanel* panel = new wxPanel(this, wxID_ANY);
 	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 
+	wxStaticText* top_text = new wxStaticText(panel, wxID_ANY, "Password Strength Checker and Generator", wxDefaultPosition, wxDefaultSize);
+	
+	// Configure the text 
+	wxFont font = top_text->GetFont();
+	font.SetPointSize(32);
+	top_text->SetFont(font);
+
+	sizer->Add(top_text, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
+
+
 	sizer->AddStretchSpacer(1);
 
 	// Textbox for password 
-	wxTextCtrl* textbox = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxDefaultSize, wxTE_CENTRE); // Increase size
+	wxTextCtrl* textbox = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(450,-1), wxTE_CENTRE); // Increase size
+	textbox->SetHint("Enter password..."); // Placeholder text
 	sizer->Add(textbox, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
 
 	// Checkbox to show password 
@@ -78,7 +93,11 @@ Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 	menuFile->Append(wxID_EXIT);
 	Bind(wxEVT_MENU, &Frame::OnExit, this, wxID_EXIT);
 
-	// Menu bar implementation 
+	// Set up Edit portion of Menu Bar 
+	// menuEdit->Append(wxID_SETTINGS, "Settings");
+	// Bind(wxEVT_MENU, &Frame::OnSettings, this);
+
+	// Menu bar help  implementation 
 	menuHelp->Append(wxID_ABOUT);
 	Bind(wxEVT_MENU, &Frame::OnAbout, this, wxID_ABOUT);
 	
@@ -92,7 +111,7 @@ Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 }
 // About/Credits function 
 void Frame::OnAbout(wxCommandEvent& event) {
-	wxMessageBox("Team Members: -------------------------");
+	wxMessageBox("Team Members: ------------------");
 }
 
 // Exit function 
@@ -100,15 +119,18 @@ void Frame::OnExit(wxCommandEvent& event) {
 	Close(true);
 }
 
+void Frame::OnSettings(wxCommandEvent& event) {
+	//
+}
 // On checkbox, hide text on textctrl
 void Frame::OnCheckbox(wxCommandEvent& event)
 {
-
+	
 }
 
 // Press button to generate a random password
 void Frame::OnGeneratePassword(wxCommandEvent& event) {
-	
+	/*wxString::FromUTF8(passwordGenerator(18))*/
 }
 
 void Frame::OnBatchPassword(wxCommandEvent& event) {
@@ -152,3 +174,4 @@ void Frame::OnBatchPassword(wxCommandEvent& event) {
 
 
 wxIMPLEMENT_APP(App);
+
