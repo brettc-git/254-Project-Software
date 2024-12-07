@@ -1,6 +1,7 @@
 #include "password.h"
 #include <wx/wx.h>
 #include <wx/numdlg.h>
+#include <wx/checkbox.h>
 #include <fstream>
 
 
@@ -13,10 +14,19 @@ class Frame : public wxFrame {
 public:
 	Frame(const wxString& title);
 private:
+	bool includeSingleSpecial = true;
+	bool includeSingleNumbers = true;
+	bool includeSingleUppercase = true;
+	bool includeSingleLowercase = true;
+	bool includeBatchSpecial = true;
+	bool includeBatchNumbers = true;
+	bool includeBatchUppercase = true;
+	bool includeBatchLowercase = true;
+
+	// Event functions
 	void OnAbout(wxCommandEvent& event);
 	void OnExit(wxCommandEvent& event);
 	void OnSettings(wxCommandEvent& event);
-	void OnCheckbox(wxCommandEvent& event);
 	void OnGeneratePassword(wxCommandEvent& event);
 	void OnBatchPassword(wxCommandEvent& event);
 };
@@ -59,9 +69,6 @@ Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 	textbox->SetHint("Enter password..."); // Placeholder text
 	sizer->Add(textbox, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
 
-	// Checkbox to show password 
-	wxCheckBox* hidePasswordCheckbox = new wxCheckBox(panel, wxID_ANY, "Show Password");
-	sizer->Add(hidePasswordCheckbox, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
 
 	// Button below to generate a random password on text bar
 	wxButton* GeneratePasswordButton = new wxButton(panel, wxID_ANY, "Generate Random Password");
@@ -89,21 +96,17 @@ Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 	menuBar->Append(menuFile, "&File");
 	menuBar->Append(menuEdit, "&Edit");
 	menuBar->Append(menuHelp, "&Help");
-	menuFile->AppendSeparator();
+	menuFile->AppendSeparator(); // Equivalent to horizontal line
 	menuFile->Append(wxID_EXIT);
 	Bind(wxEVT_MENU, &Frame::OnExit, this, wxID_EXIT);
 
 	// Set up Edit portion of Menu Bar 
-	// menuEdit->Append(wxID_SETTINGS, "Settings");
-	// Bind(wxEVT_MENU, &Frame::OnSettings, this);
+	menuEdit->Append(wxID_SETTINGS, "&Settings");
+	Bind(wxEVT_MENU, &Frame::OnSettings, this, wxID_SETTINGS);
 
 	// Menu bar help  implementation 
 	menuHelp->Append(wxID_ABOUT);
 	Bind(wxEVT_MENU, &Frame::OnAbout, this, wxID_ABOUT);
-	
-	
-	 
-	
 	
 	SetMenuBar(menuBar);
 
@@ -111,7 +114,7 @@ Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 }
 // About/Credits function 
 void Frame::OnAbout(wxCommandEvent& event) {
-	wxMessageBox("Team Members: ------------------");
+	wxMessageBox("Team Members: Cristian Victorio, Rene Acosta, Brett Chiu");
 }
 
 // Exit function 
@@ -119,14 +122,93 @@ void Frame::OnExit(wxCommandEvent& event) {
 	Close(true);
 }
 
-void Frame::OnSettings(wxCommandEvent& event) {
-	//
-}
-// On checkbox, hide text on textctrl
-void Frame::OnCheckbox(wxCommandEvent& event)
-{
+// Settings Dialog
+void Frame::OnSettings(wxCommandEvent& event) {        // May change wxDefaultSize to something else
+	wxDialog settings(this, wxID_ANY, "Settings", wxDefaultPosition, wxSize(400,500));
+
+	wxBoxSizer* settingsSizer = new wxBoxSizer(wxVERTICAL);
+
+	wxStaticText* randomGeneratorText = new wxStaticText(&settings, wxID_ANY, "Random Password Generator Settings:");
+	wxFont Font1 = randomGeneratorText->GetFont();
+	Font1.SetPointSize(14);
+	randomGeneratorText->SetFont(Font1);
+
+	settingsSizer->Add(randomGeneratorText, 0, wxALIGN_LEFT | wxALL, 10);
+
+	// Checkboxes for including characters in the random password generator
+	wxCheckBox* includeSingleSpecial = new wxCheckBox(&settings, wxID_ANY, "Include Special Characters");
+	wxCheckBox* includeSingleNumbers = new wxCheckBox(&settings, wxID_ANY, "Include Numbers");
+	wxCheckBox* includeSingleUppercase = new wxCheckBox(&settings, wxID_ANY, "Include Uppercase Characters");
+	wxCheckBox* includeSingleLowercase = new wxCheckBox(&settings, wxID_ANY, "Include Lowercase Characters");
+
+	// Set all of these to true by default
+	includeSingleSpecial->SetValue(true);
+	includeSingleNumbers->SetValue(true);
+	includeSingleUppercase->SetValue(true);
+	includeSingleLowercase->SetValue(true);
+
+	// Add to sizer
+	settingsSizer->Add(includeSingleSpecial, 0, wxALIGN_LEFT | wxALL, 5);
+	settingsSizer->Add(includeSingleNumbers, 0, wxALIGN_LEFT | wxALL, 5);
+	settingsSizer->Add(includeSingleUppercase, 0, wxALIGN_LEFT | wxALL, 5);
+	settingsSizer->Add(includeSingleLowercase, 0, wxALIGN_LEFT | wxALL, 5);
+
+	// We use a different type of spacer for the dialog window
+	settingsSizer->AddSpacer(20);
+
+
+	wxStaticText* batchGeneratorText = new wxStaticText(&settings, wxID_ANY, "Batch Password Generator Settings:");
+	wxFont Font2 = batchGeneratorText->GetFont();
+	Font2.SetPointSize(14);
+	batchGeneratorText->SetFont(Font2);
+
+	settingsSizer->Add(batchGeneratorText, 0, wxALIGN_LEFT | wxALL, 10);
+
+	// Checkboxes for including characters in the batch passwords.
+
+	wxCheckBox* includeBatchSpecial = new wxCheckBox(&settings, wxID_ANY, "Include Special Characters");
+	wxCheckBox* includeBatchNumbers = new wxCheckBox(&settings, wxID_ANY, "Include Numbers");
+	wxCheckBox* includeBatchUppercase = new wxCheckBox(&settings, wxID_ANY, "Include Uppercase Characters");
+	wxCheckBox* includeBatchLowercase = new wxCheckBox(&settings, wxID_ANY, "Include Lowercase Characters");
+
+	settingsSizer->Add(includeBatchSpecial, 0, wxALIGN_LEFT | wxALL, 5);
+	settingsSizer->Add(includeBatchNumbers, 0, wxALIGN_LEFT | wxALL, 5);
+	settingsSizer->Add(includeBatchUppercase, 0, wxALIGN_LEFT | wxALL, 5);
+	settingsSizer->Add(includeBatchLowercase, 0, wxALIGN_LEFT | wxALL, 5);
+
+	// Set all of these to true by default
+	includeBatchSpecial->SetValue(true);
+	includeBatchNumbers->SetValue(true);
+	includeBatchUppercase->SetValue(true);
+	includeBatchLowercase->SetValue(true);
+
+
+	settingsSizer->AddSpacer(20);
+
+	// OK and Cancel button
+	wxBoxSizer* buttonSizer = new wxBoxSizer(wxHORIZONTAL);
+	wxButton* OK = new wxButton(&settings, wxID_OK, "OK");
+	wxButton* Cancel = new wxButton(&settings, wxID_CANCEL, "Cancel");
+	buttonSizer->Add(OK, 0, wxALL, 5);
+	buttonSizer->Add(Cancel, 0, wxALL, 5);
+
+	settingsSizer->Add(buttonSizer, 0, wxALIGN_CENTER_HORIZONTAL);
+
+	settings.SetSizer(settingsSizer);
+	settings.Centre();
 	
+	if (settings.ShowModal() == wxID_OK) {
+		this->includeSingleSpecial = includeSingleSpecial->IsChecked();
+		this->includeSingleNumbers = includeSingleNumbers->IsChecked();
+		this->includeSingleUppercase = includeSingleUppercase->IsChecked();
+		this->includeSingleLowercase = includeSingleLowercase->IsChecked();
+		this->includeBatchSpecial = includeBatchSpecial->IsChecked();
+		this->includeBatchNumbers = includeBatchNumbers->IsChecked();
+		this->includeBatchUppercase = includeBatchUppercase->IsChecked();
+		this->includeBatchLowercase = includeBatchLowercase->IsChecked();
+	}
 }
+
 
 // Press button to generate a random password
 void Frame::OnGeneratePassword(wxCommandEvent& event) {
