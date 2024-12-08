@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
+#include <cctype>
 #include <random>
 #include <string>
 #include <fstream>
@@ -39,35 +40,58 @@ bool containsLower(const std::string our_string) {
 	}
 	return false;
 }
-std::string passwordGenerator(int length) {
+std::string passwordGenerator(int length, bool upper, bool num, bool special) {
+	// By default the password will have lowercase letters only
 
-	if (length < 8) {
-		return "ERROR";
-	}
 	// All possible characters for a pssword 
 
 	// Characters < and > are excluded since they can cause problems for web browsers
-	const std::string CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()_-+={[}]|:;\"',.?/\\";
+	const std::string LOWER = "abcdefghijklmnopqrstuvwxyz";
+	const std::string UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+	const std::string NUMBERS = "0123456789";
+	const std::string SPECIAL = "!@#$%^&*()_-+={[}]|:;\"',.?/\\";
 
-	// Random generator 
+	std::string allPossibleChars = LOWER;
+
+	// Incrementally add types of characters based on if booleans are true are false (exclude if false)
+	if (upper) 
+		allPossibleChars += UPPER;
+	if (num)
+		allPossibleChars += NUMBERS;
+	if (special)
+		allPossibleChars += SPECIAL;
+
+	// Random generator for our password
 	std::random_device random;
 	std::mt19937 generator(random());
-	std::uniform_int_distribution<> distribution(0, CHARS.size() - 1);
+	std::uniform_int_distribution<> distribution(0, allPossibleChars.size() - 1);
 
 	// Our password variable
 
 	std::string pass;
 	do {
-		// Initialize password with empty, will be empty again if password doesn't contain special character
+		// Initialize password with empty, to be filled later with for loop
 		pass = "";
 		for (int i = 0; i < length; ++i) {
 			// Append characters from the distribution of chars to make the password	
-			pass += CHARS[distribution(generator)];
+			pass += allPossibleChars[distribution(generator)];
 		}
 
-		// Our password in this generator should contain at least one special character
-		/*if containsSpecial(pass) == false*/
-	} while (containsSpecial(pass) == false || containsUpper(pass) == false || containsNumber(pass) == false || containsLower(pass) == false);
+		bool valid = true;
+
+		// Check if valid is consistently true (for example if all bools are true), in order to meet requirements 
+		if (upper)
+			valid = valid && containsUpper(pass);
+		if (num)
+			valid = valid && containsNumber(pass);
+		if (special)
+			valid = valid && containsSpecial(pass);
+
+		if (valid)
+			break;
+
+		// Loop breaks until valid is true, if successful loop only happens once
+	} while (true);
 
 	// Return when at least once special character is found in password
 	return pass;
