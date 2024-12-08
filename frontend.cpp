@@ -2,6 +2,7 @@
 #include <wx/wx.h>
 #include <wx/spinctrl.h>
 #include <wx/numdlg.h>
+#include <wx/splitter.h>
 #include <wx/checkbox.h>
 #include <fstream>
 
@@ -36,56 +37,82 @@ private:
 
 bool App::OnInit()
 {
-	Frame* window = new Frame("Strong Password Generator");
+	Frame* window = new Frame("Random Password Generator and Strength Tester");
 	window->Show(true);
 	return true;
 }
 
 enum {
 	wxID_BATCHPASSWORD = wxID_HIGHEST + 1,
-	wxID_SETTINGS = wxID_HIGHEST + 2, 
+	wxID_SETTINGS = wxID_HIGHEST + 2,
 };
 
 Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 {
 
-	wxPanel* panel = new wxPanel(this, wxID_ANY);
-	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
+	// Split program panel into both windows; we would usually use wxPanel but a splitter is added for the textctrl, and the password prereqs
+	wxSplitterWindow* splitter = new wxSplitterWindow(this, wxID_ANY);
+	wxPanel* leftPanel = new wxPanel(splitter, wxID_ANY);
+	wxPanel* rightPanel = new wxPanel(splitter, wxID_ANY);
+	splitter->SplitVertically(leftPanel, rightPanel);
+	splitter->SetSashGravity(0.6);
+
+	wxBoxSizer* leftSizer = new wxBoxSizer(wxVERTICAL);
+	wxBoxSizer* rightSizer = new wxBoxSizer(wxVERTICAL);
+	leftPanel->SetSizer(leftSizer);
+	rightPanel->SetSizer(rightSizer);
+
+	// Add flags on the right
+	wxStaticText* hasNumberFlag = new wxStaticText(rightPanel, wxID_ANY, "Has at least one numeric character: X");
+	wxStaticText* hasUppercaseCharacterFlag = new wxStaticText(rightPanel, wxID_ANY, "Has at least one uppercase Letter: X");
+	wxStaticText* hasSpecialCharacterFlag = new wxStaticText(rightPanel, wxID_ANY, "Has at least one special character : X");
+
+	rightSizer->Add(hasNumberFlag, 0, wxALL, 10);
+	rightSizer->Add(hasUppercaseCharacterFlag, 0, wxALL, 10);
+	rightSizer->Add(hasSpecialCharacterFlag, 0, wxALL, 10);
+
 
 	// Title
-	wxStaticText* top_text = new wxStaticText(panel, wxID_ANY, "Customizable Password Generator", wxDefaultPosition, wxDefaultSize);
-	
+	wxStaticText* top_text = new wxStaticText(leftPanel, wxID_ANY, "Password Strength Tester and Generator", wxDefaultPosition, wxDefaultSize);
+
 	// Configure the text 
 	wxFont font = top_text->GetFont();
 	font.SetPointSize(32);
 	top_text->SetFont(font);
 
-	sizer->Add(top_text, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
+	leftSizer->Add(top_text, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
 
 
-	sizer->AddStretchSpacer(1);
+	leftSizer->AddStretchSpacer(1);
 
 	// Textbox for password 
-	textbox = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(450,-1), wxTE_CENTRE); // Increase size
+	textbox = new wxTextCtrl(leftPanel, wxID_ANY, "", wxDefaultPosition, wxSize(450, -1), wxTE_CENTRE); // Increase size
 	textbox->SetHint("Enter password..."); // Placeholder text
-	sizer->Add(textbox, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
+	leftSizer->Add(textbox, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
 
+	textbox->Bind(wxEVT_TEXT, [=](wxCommandEvent& event) {
+		std::string password = textbox->GetValue().ToStdString();
+
+		hasNumberFlag->SetLabelText("Has at least one numeric character: " + std::string(containsNumber(password) ? "O" : "X"));
+		hasUppercaseCharacterFlag->SetLabelText("Has at least one uppercase Letter: " + std::string(containsUpper(password) ? "O" : "X"));
+		hasSpecialCharacterFlag->SetLabelText("Has at least one special character: " + std::string(containsSpecial(password) ? "O" : "X"));
+		});
 
 	// Button below to generate a random password on text bar
-	wxButton* GeneratePasswordButton = new wxButton(panel, wxID_ANY, "Generate Random Password");
-	sizer->Add(GeneratePasswordButton, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
+	wxButton* GeneratePasswordButton = new wxButton(leftPanel, wxID_ANY, "Generate Random Password");
+	leftSizer->Add(GeneratePasswordButton, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
 	GeneratePasswordButton->Bind(wxEVT_BUTTON, &Frame::OnGeneratePassword, this);
 
 	// Button below the first that displays a dialog to generate batch of passwords on a txt file.
 
-	wxButton* BatchPasswordButton = new wxButton(panel, wxID_ANY, "Batch Password Generator");
-	sizer->Add(BatchPasswordButton, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
+	wxButton* BatchPasswordButton = new wxButton(leftPanel, wxID_ANY, "Batch Password Generator");
+	leftSizer->Add(BatchPasswordButton, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
 	BatchPasswordButton->Bind(wxEVT_BUTTON, &Frame::OnBatchPassword, this);
 
-	sizer->AddStretchSpacer(1);
+	leftSizer->AddStretchSpacer(1);
 
-	panel->SetSizer(sizer);
-	sizer->Fit(this);
+	leftSizer->Fit(this);
+	rightSizer->Fit(this);
 
 	// Create menu bar on top
 	wxMenuBar* menuBar = new wxMenuBar;
@@ -109,10 +136,10 @@ Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 	// Menu bar help  implementation 
 	menuHelp->Append(wxID_ABOUT);
 	Bind(wxEVT_MENU, &Frame::OnAbout, this, wxID_ABOUT);
-	
+
 	SetMenuBar(menuBar);
 
-	
+
 }
 // About/Credits function 
 void Frame::OnAbout(wxCommandEvent& event) {
@@ -126,12 +153,12 @@ void Frame::OnExit(wxCommandEvent& event) {
 
 // Settings Dialog
 void Frame::OnSettings(wxCommandEvent& event) {        // May change wxDefaultSize to something else
-	wxDialog settings(this, wxID_ANY, "Settings", wxDefaultPosition, wxSize(400,500));
+	wxDialog settings(this, wxID_ANY, "Settings", wxDefaultPosition, wxSize(400, 500));
 
 	wxBoxSizer* settingsSizer = new wxBoxSizer(wxVERTICAL);
 
 	// Random Password Generator Settings
-	
+
 	wxStaticText* randomGeneratorText = new wxStaticText(&settings, wxID_ANY, "Random Password Generator Settings:");
 	wxFont Font1 = randomGeneratorText->GetFont();
 	Font1.SetPointSize(14);
@@ -170,7 +197,7 @@ void Frame::OnSettings(wxCommandEvent& event) {        // May change wxDefaultSi
 	settingsSizer->AddSpacer(20);
 
 	// Batch Password Generator Settings
-	
+
 	wxStaticText* batchGeneratorText = new wxStaticText(&settings, wxID_ANY, "Batch Password Generator Settings:");
 	wxFont Font2 = batchGeneratorText->GetFont();
 	Font2.SetPointSize(14);
@@ -180,7 +207,7 @@ void Frame::OnSettings(wxCommandEvent& event) {        // May change wxDefaultSi
 
 	// Checkboxes for including characters in the batch passwords.
 
-	
+
 	wxCheckBox* includeBatchSpecial = new wxCheckBox(&settings, wxID_ANY, "Include Special Characters");
 	wxCheckBox* includeBatchNumbers = new wxCheckBox(&settings, wxID_ANY, "Include Numbers");
 	wxCheckBox* includeBatchUppercase = new wxCheckBox(&settings, wxID_ANY, "Include Uppercase Characters");
@@ -208,7 +235,8 @@ void Frame::OnSettings(wxCommandEvent& event) {        // May change wxDefaultSi
 
 	settings.SetSizer(settingsSizer);
 	settings.Centre();
-	
+
+
 	if (settings.ShowModal() == wxID_OK) {
 		this->includeSingleSpecial = includeSingleSpecial->IsChecked();
 		this->includeSingleNumbers = includeSingleNumbers->IsChecked();
@@ -216,7 +244,7 @@ void Frame::OnSettings(wxCommandEvent& event) {        // May change wxDefaultSi
 		this->includeBatchSpecial = includeBatchSpecial->IsChecked();
 		this->includeBatchNumbers = includeBatchNumbers->IsChecked();
 		this->includeBatchUppercase = includeBatchUppercase->IsChecked();
-
+		// Get password length
 		passwordLength = setPasswordLength->GetValue();
 	}
 }
@@ -238,7 +266,7 @@ void Frame::OnBatchPassword(wxCommandEvent& event) {
 
 		// The number of passwords dialog														
 		wxNumberEntryDialog dialog2(nullptr, "", "Number of Passwords", "Batch Password Generator", 5, 1, 100);
-																								// default, minimum, maximum
+		// default, minimum, maximum
 		if (dialog2.ShowModal() == wxID_OK) {
 			int passwordCount = dialog2.GetValue();
 			wxString passwords;
@@ -250,7 +278,7 @@ void Frame::OnBatchPassword(wxCommandEvent& event) {
 
 
 			for (int i = 0; i < passwordCount; i++) {
-				
+
 				passwords += wxString::FromUTF8(passwordGenerator(passwordLength, includeBatchUppercase, includeBatchNumbers, includeBatchSpecial)) + "\n";
 				// Append each password on a line
 				Myfile << passwordGenerator(passwordLength, includeBatchUppercase, includeBatchNumbers, includeBatchSpecial) << std::endl;
@@ -262,10 +290,9 @@ void Frame::OnBatchPassword(wxCommandEvent& event) {
 			wxMessageBox("Passwords will show up on passwords.txt", "Generated Passwords successfully.", wxOK | wxICON_INFORMATION);
 		}
 	}
-	
-	
- }
+
+
+}
 
 
 wxIMPLEMENT_APP(App);
-
