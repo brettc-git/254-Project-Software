@@ -16,6 +16,7 @@ bool containsSpecial(const std::string our_string) {
 	return false;
 }
 
+// Same with rest of functions
 bool containsUpper(const std::string our_string) {
 	for (char c : our_string) {
 		if (!std::isupper(c))
@@ -33,18 +34,10 @@ bool containsNumber(const std::string our_string) {
 	return false;
 }
 
-bool containsLower(const std::string our_string) {
-	for (char c : our_string) {
-		if (!std::islower(c))
-			return true;
-	}
-	return false;
-}
 std::string passwordGenerator(int length, bool upper, bool num, bool special) {
 	// By default the password will have lowercase letters only
 
 	// All possible characters for a pssword 
-
 	// Characters < and > are excluded since they can cause problems for web browsers
 	const std::string LOWER = "abcdefghijklmnopqrstuvwxyz";
 	const std::string UPPER = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -79,7 +72,7 @@ std::string passwordGenerator(int length, bool upper, bool num, bool special) {
 
 		bool valid = true;
 
-		// Check if valid is consistently true (for example if all bools are true), in order to meet requirements 
+		// Check if valid is consistently true for all requirements, in order to meet each of them to create password 
 		if (upper)
 			valid = valid && containsUpper(pass);
 		if (num)
@@ -93,7 +86,7 @@ std::string passwordGenerator(int length, bool upper, bool num, bool special) {
 		// Loop breaks until valid is true, if successful loop only happens once
 	} while (true);
 
-	// Return when at least once special character is found in password
+	
 	return pass;
 }
 
