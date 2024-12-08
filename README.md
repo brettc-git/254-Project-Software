@@ -4,7 +4,7 @@
 ## Credits
 Group Members:
 + Rene Acosta
-+ Brett Chiu (responsible for frontend/WXWidgets)
++ Brett Chiu
 + Cristian Victorio
 
 Components, Languages, Tools Used:
