@@ -90,6 +90,7 @@ Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 	textbox->SetHint("Enter password..."); // Placeholder text
 	leftSizer->Add(textbox, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
 
+	// Bind textbox's text to the flags for each condition fulfilled, O if fulfilled, X if not
 	textbox->Bind(wxEVT_TEXT, [=](wxCommandEvent& event) {
 		std::string password = textbox->GetValue().ToStdString();
 
