@@ -3,6 +3,6 @@
 
 #include <string>
 
-std::string passwordGenerator(int length);
+std::string passwordGenerator(int length, bool upper, bool num, bool special);
 
 #endif
