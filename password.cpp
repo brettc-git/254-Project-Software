@@ -9,29 +9,18 @@
 
 // Checks if our password has a special character, returns true if a single one is found, false if there are none 
 bool containsSpecial(const std::string our_string) {
-	for (char c : our_string) {
-		if (!std::isalnum(c))
-			return true;
-	}
-	return false;
+	return std::any_of(our_string.begin(), our_string.end(), [](char c) {
+		return !std::isalnum(c);
+	});
 }
 
 // Same with rest of functions
 bool containsUpper(const std::string our_string) {
-	for (char c : our_string) {
-		if (!std::isupper(c))
-			return true;
-	}
-	return false;
+	return std::any_of(our_string.begin(), our_string.end(), ::isupper);
 }
 
 bool containsNumber(const std::string our_string) {
-
-	for (char c : our_string) {
-		if (!std::isdigit(c))
-			return true;
-	}
-	return false;
+	return std::any_of(our_string.begin(), our_string.end(), ::isdigit);
 }
 
 std::string passwordGenerator(int length, bool upper, bool num, bool special) {
@@ -47,7 +36,7 @@ std::string passwordGenerator(int length, bool upper, bool num, bool special) {
 	std::string allPossibleChars = LOWER;
 
 	// Incrementally add types of characters based on if booleans are true are false (exclude if false)
-	if (upper) 
+	if (upper)
 		allPossibleChars += UPPER;
 	if (num)
 		allPossibleChars += NUMBERS;
@@ -86,7 +75,6 @@ std::string passwordGenerator(int length, bool upper, bool num, bool special) {
 		// Loop breaks until valid is true, if successful loop only happens once
 	} while (true);
 
-	
+
 	return pass;
 }
-
