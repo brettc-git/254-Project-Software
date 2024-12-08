@@ -1,5 +1,6 @@
 #include "password.h"
 #include <wx/wx.h>
+#include <wx/spinctrl.h>
 #include <wx/numdlg.h>
 #include <wx/checkbox.h>
 #include <fstream>
@@ -14,14 +15,14 @@ class Frame : public wxFrame {
 public:
 	Frame(const wxString& title);
 private:
+	wxTextCtrl* textbox;
+	int passwordLength = 12;
 	bool includeSingleSpecial = true;
 	bool includeSingleNumbers = true;
 	bool includeSingleUppercase = true;
-	bool includeSingleLowercase = true;
 	bool includeBatchSpecial = true;
 	bool includeBatchNumbers = true;
 	bool includeBatchUppercase = true;
-	bool includeBatchLowercase = true;
 
 	// Event functions
 	void OnAbout(wxCommandEvent& event);
@@ -65,7 +66,7 @@ Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 	sizer->AddStretchSpacer(1);
 
 	// Textbox for password 
-	wxTextCtrl* textbox = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(450,-1), wxTE_CENTRE); // Increase size
+	textbox = new wxTextCtrl(panel, wxID_ANY, "", wxDefaultPosition, wxSize(450,-1), wxTE_CENTRE); // Increase size
 	textbox->SetHint("Enter password..."); // Placeholder text
 	sizer->Add(textbox, 0, wxALIGN_CENTER_HORIZONTAL | wxALL, 10);
 
@@ -139,21 +140,30 @@ void Frame::OnSettings(wxCommandEvent& event) {        // May change wxDefaultSi
 	wxCheckBox* includeSingleSpecial = new wxCheckBox(&settings, wxID_ANY, "Include Special Characters");
 	wxCheckBox* includeSingleNumbers = new wxCheckBox(&settings, wxID_ANY, "Include Numbers");
 	wxCheckBox* includeSingleUppercase = new wxCheckBox(&settings, wxID_ANY, "Include Uppercase Characters");
-	wxCheckBox* includeSingleLowercase = new wxCheckBox(&settings, wxID_ANY, "Include Lowercase Characters");
 
 	// Set all of these to true by default
-	includeSingleSpecial->SetValue(true);
-	includeSingleNumbers->SetValue(true);
-	includeSingleUppercase->SetValue(true);
-	includeSingleLowercase->SetValue(true);
+	includeSingleSpecial->SetValue(this->includeSingleSpecial);
+	includeSingleNumbers->SetValue(this->includeSingleNumbers);
+	includeSingleUppercase->SetValue(this->includeSingleUppercase);
 
 	// Add to sizer
 	settingsSizer->Add(includeSingleSpecial, 0, wxALIGN_LEFT | wxALL, 5);
 	settingsSizer->Add(includeSingleNumbers, 0, wxALIGN_LEFT | wxALL, 5);
 	settingsSizer->Add(includeSingleUppercase, 0, wxALIGN_LEFT | wxALL, 5);
-	settingsSizer->Add(includeSingleLowercase, 0, wxALIGN_LEFT | wxALL, 5);
 
+	// Add the number entry box for random password generator
 	// We use a different type of spacer for the dialog window
+
+	wxStaticText* passwordLengthText = new wxStaticText(&settings, wxID_ANY, "Random Password Length (single): ");
+	settingsSizer->Add(passwordLengthText, 0, wxALIGN_LEFT | wxALL, 10);
+
+	wxSpinCtrl* setPasswordLength = new wxSpinCtrl(&settings, wxID_ANY, wxEmptyString, wxDefaultPosition, wxDefaultSize);
+	setPasswordLength->SetRange(1, 100);
+	setPasswordLength->SetValue(passwordLength);
+	settingsSizer->Add(setPasswordLength, 0, wxALIGN_LEFT | wxALL, 10);
+
+
+
 	settingsSizer->AddSpacer(20);
 
 
@@ -169,18 +179,15 @@ void Frame::OnSettings(wxCommandEvent& event) {        // May change wxDefaultSi
 	wxCheckBox* includeBatchSpecial = new wxCheckBox(&settings, wxID_ANY, "Include Special Characters");
 	wxCheckBox* includeBatchNumbers = new wxCheckBox(&settings, wxID_ANY, "Include Numbers");
 	wxCheckBox* includeBatchUppercase = new wxCheckBox(&settings, wxID_ANY, "Include Uppercase Characters");
-	wxCheckBox* includeBatchLowercase = new wxCheckBox(&settings, wxID_ANY, "Include Lowercase Characters");
 
 	settingsSizer->Add(includeBatchSpecial, 0, wxALIGN_LEFT | wxALL, 5);
 	settingsSizer->Add(includeBatchNumbers, 0, wxALIGN_LEFT | wxALL, 5);
 	settingsSizer->Add(includeBatchUppercase, 0, wxALIGN_LEFT | wxALL, 5);
-	settingsSizer->Add(includeBatchLowercase, 0, wxALIGN_LEFT | wxALL, 5);
 
 	// Set all of these to true by default
-	includeBatchSpecial->SetValue(true);
-	includeBatchNumbers->SetValue(true);
-	includeBatchUppercase->SetValue(true);
-	includeBatchLowercase->SetValue(true);
+	includeBatchSpecial->SetValue(this->includeBatchSpecial);
+	includeBatchNumbers->SetValue(this->includeBatchNumbers);
+	includeBatchUppercase->SetValue(this->includeBatchUppercase);
 
 
 	settingsSizer->AddSpacer(20);
@@ -201,18 +208,19 @@ void Frame::OnSettings(wxCommandEvent& event) {        // May change wxDefaultSi
 		this->includeSingleSpecial = includeSingleSpecial->IsChecked();
 		this->includeSingleNumbers = includeSingleNumbers->IsChecked();
 		this->includeSingleUppercase = includeSingleUppercase->IsChecked();
-		this->includeSingleLowercase = includeSingleLowercase->IsChecked();
 		this->includeBatchSpecial = includeBatchSpecial->IsChecked();
 		this->includeBatchNumbers = includeBatchNumbers->IsChecked();
 		this->includeBatchUppercase = includeBatchUppercase->IsChecked();
-		this->includeBatchLowercase = includeBatchLowercase->IsChecked();
+
+		passwordLength = setPasswordLength->GetValue();
 	}
 }
 
 
 // Press button to generate a random password
 void Frame::OnGeneratePassword(wxCommandEvent& event) {
-	/*wxString::FromUTF8(passwordGenerator(18))*/
+	std::string password = passwordGenerator(passwordLength, includeSingleUppercase, includeSingleNumbers, includeSingleSpecial);
+	textbox->SetValue(wxString::FromUTF8(password));
 }
 
 void Frame::OnBatchPassword(wxCommandEvent& event) {
@@ -239,9 +247,9 @@ void Frame::OnBatchPassword(wxCommandEvent& event) {
 
 			for (int i = 0; i < passwordCount; i++) {
 				
-				passwords += wxString::FromUTF8(passwordGenerator(passwordLength)) + "\n";
+				passwords += wxString::FromUTF8(passwordGenerator(passwordLength, includeBatchUppercase, includeBatchNumbers, includeBatchSpecial)) + "\n";
 				// Append each password on a line
-				Myfile << passwordGenerator(passwordLength) << std::endl;
+				Myfile << passwordGenerator(passwordLength, includeBatchUppercase, includeBatchNumbers, includeBatchSpecial) << std::endl;
 			}
 
 			// Close file
