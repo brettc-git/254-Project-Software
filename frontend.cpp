@@ -36,7 +36,7 @@ private:
 
 bool App::OnInit()
 {
-	Frame* window = new Frame("Password Strength Checker");
+	Frame* window = new Frame("Strong Password Generator");
 	window->Show(true);
 	return true;
 }
@@ -53,7 +53,7 @@ Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 
 	// Title
-	wxStaticText* top_text = new wxStaticText(panel, wxID_ANY, "Password Strength Checker and Generator", wxDefaultPosition, wxDefaultSize);
+	wxStaticText* top_text = new wxStaticText(panel, wxID_ANY, "Customizable Password Generator", wxDefaultPosition, wxDefaultSize);
 	
 	// Configure the text 
 	wxFont font = top_text->GetFont();
