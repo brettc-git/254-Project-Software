@@ -17,6 +17,8 @@ public:
 private:
 	wxTextCtrl* textbox;
 	int passwordLength = 12;
+
+	// For settings
 	bool includeSingleSpecial = true;
 	bool includeSingleNumbers = true;
 	bool includeSingleUppercase = true;
@@ -39,9 +41,6 @@ bool App::OnInit()
 	return true;
 }
 
-// Password Generator Length
-// auto dialog = wxNumberEntryDialog {this, "", "Password Length", "Generate Passwords"
-
 enum {
 	wxID_BATCHPASSWORD = wxID_HIGHEST + 1,
 	wxID_SETTINGS = wxID_HIGHEST + 2, 
@@ -53,6 +52,7 @@ Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 	wxPanel* panel = new wxPanel(this, wxID_ANY);
 	wxBoxSizer* sizer = new wxBoxSizer(wxVERTICAL);
 
+	// Title
 	wxStaticText* top_text = new wxStaticText(panel, wxID_ANY, "Password Strength Checker and Generator", wxDefaultPosition, wxDefaultSize);
 	
 	// Configure the text 
@@ -87,6 +87,7 @@ Frame::Frame(const wxString& title) : wxFrame(nullptr, wxID_ANY, title)
 	panel->SetSizer(sizer);
 	sizer->Fit(this);
 
+	// Create menu bar on top
 	wxMenuBar* menuBar = new wxMenuBar;
 
 	wxMenu* menuFile = new wxMenu;
@@ -129,6 +130,8 @@ void Frame::OnSettings(wxCommandEvent& event) {        // May change wxDefaultSi
 
 	wxBoxSizer* settingsSizer = new wxBoxSizer(wxVERTICAL);
 
+	// Random Password Generator Settings
+	
 	wxStaticText* randomGeneratorText = new wxStaticText(&settings, wxID_ANY, "Random Password Generator Settings:");
 	wxFont Font1 = randomGeneratorText->GetFont();
 	Font1.SetPointSize(14);
@@ -166,7 +169,8 @@ void Frame::OnSettings(wxCommandEvent& event) {        // May change wxDefaultSi
 
 	settingsSizer->AddSpacer(20);
 
-
+	// Batch Password Generator Settings
+	
 	wxStaticText* batchGeneratorText = new wxStaticText(&settings, wxID_ANY, "Batch Password Generator Settings:");
 	wxFont Font2 = batchGeneratorText->GetFont();
 	Font2.SetPointSize(14);
@@ -176,6 +180,7 @@ void Frame::OnSettings(wxCommandEvent& event) {        // May change wxDefaultSi
 
 	// Checkboxes for including characters in the batch passwords.
 
+	
 	wxCheckBox* includeBatchSpecial = new wxCheckBox(&settings, wxID_ANY, "Include Special Characters");
 	wxCheckBox* includeBatchNumbers = new wxCheckBox(&settings, wxID_ANY, "Include Numbers");
 	wxCheckBox* includeBatchUppercase = new wxCheckBox(&settings, wxID_ANY, "Include Uppercase Characters");
@@ -184,7 +189,7 @@ void Frame::OnSettings(wxCommandEvent& event) {        // May change wxDefaultSi
 	settingsSizer->Add(includeBatchNumbers, 0, wxALIGN_LEFT | wxALL, 5);
 	settingsSizer->Add(includeBatchUppercase, 0, wxALIGN_LEFT | wxALL, 5);
 
-	// Set all of these to true by default
+	// Set all of these 
 	includeBatchSpecial->SetValue(this->includeBatchSpecial);
 	includeBatchNumbers->SetValue(this->includeBatchNumbers);
 	includeBatchUppercase->SetValue(this->includeBatchUppercase);
@@ -220,7 +225,7 @@ void Frame::OnSettings(wxCommandEvent& event) {        // May change wxDefaultSi
 // Press button to generate a random password
 void Frame::OnGeneratePassword(wxCommandEvent& event) {
 	std::string password = passwordGenerator(passwordLength, includeSingleUppercase, includeSingleNumbers, includeSingleSpecial);
-	textbox->SetValue(wxString::FromUTF8(password));
+	textbox->SetValue(wxString::FromUTF8(password)); // Set textbox with generated password
 }
 
 void Frame::OnBatchPassword(wxCommandEvent& event) {
@@ -238,7 +243,6 @@ void Frame::OnBatchPassword(wxCommandEvent& event) {
 			int passwordCount = dialog2.GetValue();
 			wxString passwords;
 
-			// Have myfile name be dynamic
 			std::ofstream Myfile("passwords.txt");
 			if (!Myfile.is_open()) {
 				std::cerr << "File not found. Error.";
